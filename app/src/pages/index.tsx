@@ -1,90 +1,36 @@
-import { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import Head from 'next/head';
 import Image from 'next/image';
 import { Layout } from '../components/Layout';
 import { StatCard } from '../components/StatCard';
-import { RuleCard, Rule } from '../components/RuleCard';
+import { RuleCard } from '../components/RuleCard';
 import Link from 'next/link';
+import { useTreasury } from '../hooks/useTreasury';
+import { useToast } from '../contexts/ToastContext';
 
 export default function Home() {
   const { connected } = useWallet();
-  const [rules, setRules] = useState<Rule[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    // Mock data for MVP demo
-    if (connected) {
-      const mockRules: Rule[] = [
-        {
-          id: 1,
-          name: 'Rebalance USDC Reserve',
-          type: 'balance',
-          condition: 'USDC balance < $5,000,000',
-          action: 'Convert $1M SOL → USDC',
-          isActive: true,
-          lastExecuted: new Date(Date.now() - 86400000 * 2),
-          executionCount: 12,
-        },
-        {
-          id: 2,
-          name: 'Buy Gold RWA on Surge',
-          type: 'price',
-          condition: 'Gold price > $2,100/oz',
-          action: 'Buy $500k gold bonds',
-          isActive: true,
-          lastExecuted: new Date(Date.now() - 86400000 * 7),
-          executionCount: 5,
-        },
-        {
-          id: 3,
-          name: 'Weekly Dividend Payment',
-          type: 'schedule',
-          condition: 'Every Friday 5 PM UTC',
-          action: 'Distribute 10% USDC to shareholders',
-          isActive: true,
-          lastExecuted: new Date(Date.now() - 86400000 * 3),
-          executionCount: 24,
-        },
-        {
-          id: 4,
-          name: 'KYT Compliance Gate',
-          type: 'compliance',
-          condition: 'Payment amount > $100,000',
-          action: 'Run Chainalysis KYT check',
-          isActive: true,
-          lastExecuted: new Date(Date.now() - 3600000),
-          executionCount: 48,
-        },
-      ];
-      setRules(mockRules);
-    }
-  }, [connected]);
+  const { treasury, rules, loading, error, executeRule, disableRule, initializeTreasury } = useTreasury();
+  const { showToast } = useToast();
 
   const handleExecuteRule = async (ruleId: number) => {
-    setLoading(true);
-    // Mock execution
-    setTimeout(() => {
-      setRules(prev =>
-        prev.map(rule =>
-          rule.id === ruleId
-            ? { ...rule, executionCount: rule.executionCount + 1, lastExecuted: new Date() }
-            : rule
-        )
-      );
-      setLoading(false);
-      alert(`Rule #${ruleId} executed successfully!\n\n(Mock execution - Connect smart contract for real txn)`);
-    }, 1500);
+    try {
+      const tx = await executeRule(ruleId);
+      showToast('success', `Rule #${ruleId} executed!`, undefined, tx);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      showToast('error', 'Execution failed', msg);
+    }
   };
 
-  const handleDisableRule = (ruleId: number) => {
-    setRules(prev =>
-      prev.map(rule =>
-        rule.id === ruleId
-          ? { ...rule, isActive: !rule.isActive }
-          : rule
-      )
-    );
+  const handleDisableRule = async (ruleId: number) => {
+    try {
+      await disableRule(ruleId);
+      showToast('success', `Rule #${ruleId} disabled`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      showToast('error', 'Failed to disable rule', msg);
+    }
   };
 
   if (!connected) {
@@ -139,9 +85,9 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Total Value Locked"
-          value="$50.2M"
+          value={treasury.account ? `${treasury.solBalance.toFixed(2)} SOL` : '—'}
           icon="💎"
-          change="+5.2%"
+          change=""
           trend="up"
         />
         <StatCard
@@ -151,17 +97,45 @@ export default function Home() {
         />
         <StatCard
           title="Executions Today"
-          value="14"
+          value={rules.reduce((sum, r) => sum + r.executionCount, 0).toString()}
           icon="✅"
-          change="+3"
+          change=""
           trend="up"
         />
         <StatCard
           title="Compliance Status"
-          value="100%"
+          value={error ? 'Error' : '100%'}
           icon="🔒"
         />
       </div>
+
+      {/* Error banner */}
+      {error && (
+        <div className="bg-red-900/40 border border-red-500 rounded-xl p-4 mb-6 text-red-300 text-sm">
+          ⚠ {error}
+        </div>
+      )}
+
+      {/* Treasury not initialized */}
+      {!treasury.exists && !loading && (
+        <div className="bg-slate-800/50 border border-slate-600 rounded-xl p-6 mb-8 text-center">
+          <p className="text-slate-300 mb-4">No treasury found for this wallet. Initialize one to get started.</p>
+          <button
+            onClick={async () => {
+              try {
+                await initializeTreasury('My Treasury');
+                showToast('success', 'Treasury initialized!');
+              } catch (err: unknown) {
+                const msg = err instanceof Error ? err.message : String(err);
+                showToast('error', 'Failed to initialize treasury', msg);
+              }
+            }}
+            className="px-6 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition"
+          >
+            Initialize Treasury
+          </button>
+        </div>
+      )}
 
       {/* Portfolio Breakdown */}
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 mb-8">

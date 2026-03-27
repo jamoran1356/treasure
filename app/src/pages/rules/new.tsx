@@ -3,22 +3,46 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import Head from 'next/head';
 import { Layout } from '../../components/Layout';
 import Router from 'next/router';
+import { useTreasury, AddRuleParams } from '../../hooks/useTreasury';
 
 export default function NewRule() {
   const { connected } = useWallet();
-  const [ruleType, setRuleType] = useState<'balance' | 'price' | 'schedule' | 'compliance'>('balance');
+  const { addRule, treasury } = useTreasury();
+
+  const [ruleType, setRuleType] = useState<AddRuleParams['ruleType']>('balance');
+  const [action, setAction] = useState<AddRuleParams['action']>('transfer');
+  const [conditionValue, setConditionValue] = useState('');
+  const [targetAmount, setTargetAmount] = useState('');
   const [loading, setLoading] = useState(false);
-  
+  const [txSig, setTxSig] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Mock submission
-    setTimeout(() => {
+    setFormError(null);
+
+    if (!treasury.exists) {
+      setFormError('Treasury not initialized. Go to the dashboard and initialize it first.');
       setLoading(false);
-      alert('Rule created successfully!\n\n(Mock creation - Connect smart contract for real txn)');
-      Router.push('/');
-    }, 1500);
+      return;
+    }
+
+    try {
+      const tx = await addRule({
+        ruleType,
+        conditionValue: Number(conditionValue),
+        action,
+        targetAmount: Number(targetAmount),
+      });
+      setTxSig(tx);
+      setTimeout(() => Router.push('/'), 2000);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setFormError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!connected) {
@@ -44,6 +68,19 @@ export default function NewRule() {
         </div>
 
         <form onSubmit={handleSubmit} className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-8 border border-slate-700">
+          {/* Error / success feedback */}
+          {formError && (
+            <div className="mb-6 bg-red-900/40 border border-red-500 rounded-lg p-4 text-red-300 text-sm">⚠ {formError}</div>
+          )}
+          {txSig && (
+            <div className="mb-6 bg-green-900/40 border border-green-500 rounded-lg p-4 text-green-300 text-sm">
+              ✅ Rule created on-chain!{' '}
+              <a href={`https://explorer.solana.com/tx/${txSig}?cluster=devnet`} target="_blank" rel="noopener noreferrer" className="underline">
+                View transaction
+              </a>
+            </div>
+          )}
+
           {/* Rule Name */}
           <div className="mb-6">
             <label className="block text-white font-medium mb-2">Rule Name</label>
@@ -100,6 +137,8 @@ export default function NewRule() {
                   type="number"
                   required
                   placeholder="Amount (e.g., 5000000)"
+                  value={conditionValue}
+                  onChange={e => setConditionValue(e.target.value)}
                   className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-primary-500 outline-none"
                 />
               </div>
@@ -119,6 +158,8 @@ export default function NewRule() {
                   type="number"
                   required
                   placeholder="Price threshold (e.g., 2100)"
+                  value={conditionValue}
+                  onChange={e => setConditionValue(e.target.value)}
                   className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-primary-500 outline-none"
                 />
               </div>
@@ -151,6 +192,8 @@ export default function NewRule() {
                   type="number"
                   required
                   placeholder="Threshold (e.g., 100000)"
+                  value={conditionValue}
+                  onChange={e => setConditionValue(e.target.value)}
                   className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-primary-500 outline-none"
                 />
               </div>
@@ -161,16 +204,21 @@ export default function NewRule() {
           <div className="mb-6">
             <label className="block text-white font-medium mb-2">Action (THEN...)</label>
             <div className="space-y-3">
-              <select className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-primary-500 outline-none">
-                <option>Transfer tokens</option>
-                <option>Swap tokens</option>
-                <option>Block payment</option>
-                <option>Send notification</option>
+              <select
+                value={action}
+                onChange={e => setAction(e.target.value as AddRuleParams['action'])}
+                className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-primary-500 outline-none"
+              >
+                <option value="transfer">Transfer tokens</option>
+                <option value="swap">Swap tokens</option>
+                <option value="blockPayment">Block payment</option>
               </select>
               <input
                 type="number"
                 required
-                placeholder="Amount"
+                placeholder="Amount (in token base units)"
+                value={targetAmount}
+                onChange={e => setTargetAmount(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white focus:border-primary-500 outline-none"
               />
             </div>
