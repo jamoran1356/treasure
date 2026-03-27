@@ -95,12 +95,12 @@ export default function Home() {
         </Head>
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <div className="w-24 h-24 mx-auto mb-6 relative">
+            <div className="w-[300px] h-24 mx-auto mb-6 relative">
               <Image
                 src="/assets/images/logo.webp"
                 alt="Programmable Treasury Logo"
                 fill
-                sizes="96px"
+                sizes="300px"
                 className="object-contain"
                 priority
               />
