@@ -14,6 +14,7 @@ const IDL: any = {
   instructions: [
     {
       name: 'initializeTreasury',
+      discriminator: [124, 186, 211, 195, 85, 165, 129, 166],
       accounts: [
         { name: 'treasury', writable: true, signer: false, pda: { seeds: [{ kind: 'const', value: [116,114,101,97,115,117,114,121] }, { kind: 'account', path: 'authority' }] } },
         { name: 'authority', writable: false, signer: true },
@@ -24,6 +25,7 @@ const IDL: any = {
     },
     {
       name: 'addRule',
+      discriminator: [26, 241, 95, 174, 205, 5, 235, 77],
       accounts: [
         { name: 'treasury', writable: true, signer: false },
         { name: 'rule', writable: true, signer: false },
@@ -39,6 +41,7 @@ const IDL: any = {
     },
     {
       name: 'executeRule',
+      discriminator: [143, 36, 13, 104, 240, 240, 207, 192],
       accounts: [
         { name: 'treasury', writable: false, signer: false },
         { name: 'rule', writable: true, signer: false },
@@ -52,6 +55,7 @@ const IDL: any = {
     },
     {
       name: 'disableRule',
+      discriminator: [98, 20, 112, 62, 207, 167, 81, 99],
       accounts: [
         { name: 'treasury', writable: false, signer: false },
         { name: 'rule', writable: true, signer: false },
@@ -62,12 +66,21 @@ const IDL: any = {
   ],
   accounts: [
     {
-      name: 'Treasury',
-      discriminator: [0, 0, 0, 0, 0, 0, 0, 0],
+      name: 'treasury',
+      discriminator: [238, 239, 123, 238, 89, 1, 168, 253],
+    },
+    {
+      name: 'rule',
+      discriminator: [82, 10, 53, 40, 250, 61, 143, 130],
+    },
+  ],
+  types: [
+    {
+      name: 'treasury',
       type: {
         kind: 'struct',
         fields: [
-          { name: 'authority', type: 'publicKey' },
+          { name: 'authority', type: 'pubkey' },
           { name: 'name', type: 'string' },
           { name: 'rulesCount', type: 'u32' },
           { name: 'totalValue', type: 'u64' },
@@ -76,12 +89,11 @@ const IDL: any = {
       },
     },
     {
-      name: 'Rule',
-      discriminator: [0, 0, 0, 0, 0, 0, 0, 1],
+      name: 'rule',
       type: {
         kind: 'struct',
         fields: [
-          { name: 'treasury', type: 'publicKey' },
+          { name: 'treasury', type: 'pubkey' },
           { name: 'id', type: 'u32' },
           { name: 'ruleType', type: { defined: { name: 'RuleType' } } },
           { name: 'conditionValue', type: 'u64' },
@@ -93,8 +105,6 @@ const IDL: any = {
         ],
       },
     },
-  ],
-  types: [
     {
       name: 'RuleType',
       type: {

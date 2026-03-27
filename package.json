@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "Security tests for Programmable Treasury",
   "scripts": {
+    "dev": "pnpm --dir app dev",
+    "build": "pnpm --dir app build",
+    "start": "pnpm --dir app start",
+    "lint": "pnpm --dir app lint",
     "test": "anchor test",
     "security-check": "pnpm audit"
   },
