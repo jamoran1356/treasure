@@ -428,18 +428,6 @@ This isn't a hackathon toy — it's the foundation of a production system.
 
 ---
 
-## 📄 Documentation
-
-| File | Description |
-|---|---|
-| [SECURITY_AUDIT.md](./md%20files/SECURITY_AUDIT.md) | Full vulnerability report & mitigations |
-| [DEMO_GUIDE.md](./md%20files/DEMO_GUIDE.md) | Step-by-step demo & video script |
-| [PROJECT_DETAILED_DESCRIPTION.md](./md%20files/PROJECT_DETAILED_DESCRIPTION.md) | Deep technical walkthrough |
-| [EXECUTIVE_SUMMARY.md](./md%20files/EXECUTIVE_SUMMARY.md) | One-page pitch for judges |
-| [MVP_COMPLETION.md](./md%20files/MVP_COMPLETION.md) | Feature completion checklist |
-| [DORAHACKS_SUBMISSION.md](./md%20files/DORAHACKS_SUBMISSION.md) | Submission form answers |
-
----
 
 <div align="center">
 
