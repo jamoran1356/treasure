@@ -185,7 +185,7 @@ export function getProgram(wallet: WalletContextState, connection: Connection): 
     { commitment: 'confirmed' }
   );
 
-  return new Program(IDL, provider);
+  return new Program(IDL as Idl, provider);
 }
 
 export function ruleTypeToString(rt: RuleTypeOnChain): 'balance' | 'price' | 'schedule' | 'compliance' {
