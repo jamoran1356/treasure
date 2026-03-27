@@ -13,6 +13,32 @@ export default function Home() {
   const { treasury, rules, loading, error, executeRule, disableRule, initializeTreasury } = useTreasury();
   const { showToast } = useToast();
 
+  const totalRules = rules.length;
+  const activeRules = rules.filter(r => r.isActive).length;
+  const recentActivity = rules
+    .filter(r => r.lastExecuted)
+    .sort((a, b) => (b.lastExecuted?.getTime() ?? 0) - (a.lastExecuted?.getTime() ?? 0))
+    .slice(0, 4)
+    .map(rule => ({
+      action: `${rule.name} executed`,
+      time: rule.lastExecuted?.toLocaleString() ?? 'Unknown time',
+      status: 'success' as const,
+    }));
+
+  const balanceRules = rules.filter(r => r.type === 'balance').length;
+  const priceRules = rules.filter(r => r.type === 'price').length;
+  const complianceRules = rules.filter(r => r.type === 'compliance');
+  const activeComplianceRules = complianceRules.filter(r => r.isActive).length;
+  const complianceStatus = (() => {
+    if (error) return 'Sync error';
+    if (!treasury.exists) return 'Not initialized';
+    if (complianceRules.length === 0) return 'No policy';
+    if (activeComplianceRules === complianceRules.length) return 'Enforced';
+    return `Partial (${activeComplianceRules}/${complianceRules.length})`;
+  })();
+  const complianceOrScheduleRules = rules.filter(r => r.type === 'compliance' || r.type === 'schedule').length;
+  const safeTotalForPercent = Math.max(totalRules, 1);
+
   const handleExecuteRule = async (ruleId: number) => {
     try {
       const tx = await executeRule(ruleId);
@@ -92,7 +118,7 @@ export default function Home() {
         />
         <StatCard
           title="Active Rules"
-          value={rules.filter(r => r.isActive).length.toString()}
+          value={activeRules.toString()}
           icon="⚡"
         />
         <StatCard
@@ -104,7 +130,7 @@ export default function Home() {
         />
         <StatCard
           title="Compliance Status"
-          value={error ? 'Error' : '100%'}
+          value={complianceStatus}
           icon="🔒"
         />
       </div>
@@ -137,42 +163,46 @@ export default function Home() {
         </div>
       )}
 
-      {/* Portfolio Breakdown */}
+      {/* On-chain Configuration Breakdown */}
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700 mb-8">
-        <h2 className="text-white text-xl font-semibold mb-4">Portfolio Breakdown</h2>
+        <h2 className="text-white text-xl font-semibold mb-4">On-chain Configuration</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-slate-900/50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-400 text-sm">USDC</span>
-              <span className="text-success text-sm">60%</span>
+              <span className="text-slate-400 text-sm">Balance Rules</span>
+              <span className="text-success text-sm">{Math.round((balanceRules / safeTotalForPercent) * 100)}%</span>
             </div>
-            <div className="text-white text-2xl font-bold">$30.1M</div>
+            <div className="text-white text-2xl font-bold">{balanceRules}</div>
             <div className="w-full bg-slate-700 h-2 rounded-full mt-2">
-              <div className="bg-blue-500 h-2 rounded-full" style={{ width: '60%' }}></div>
+              <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${Math.round((balanceRules / safeTotalForPercent) * 100)}%` }}></div>
             </div>
           </div>
           
           <div className="bg-slate-900/50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-400 text-sm">SOL</span>
-              <span className="text-success text-sm">30%</span>
+              <span className="text-slate-400 text-sm">Price Rules</span>
+              <span className="text-success text-sm">{Math.round((priceRules / safeTotalForPercent) * 100)}%</span>
             </div>
-            <div className="text-white text-2xl font-bold">$15.0M</div>
+            <div className="text-white text-2xl font-bold">{priceRules}</div>
             <div className="w-full bg-slate-700 h-2 rounded-full mt-2">
-              <div className="bg-purple-500 h-2 rounded-full" style={{ width: '30%' }}></div>
+              <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${Math.round((priceRules / safeTotalForPercent) * 100)}%` }}></div>
             </div>
           </div>
           
           <div className="bg-slate-900/50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-slate-400 text-sm">RWA Bonds</span>
-              <span className="text-success text-sm">10%</span>
+              <span className="text-slate-400 text-sm">Compliance/Schedule</span>
+              <span className="text-success text-sm">{Math.round((complianceOrScheduleRules / safeTotalForPercent) * 100)}%</span>
             </div>
-            <div className="text-white text-2xl font-bold">$5.1M</div>
+            <div className="text-white text-2xl font-bold">{complianceOrScheduleRules}</div>
             <div className="w-full bg-slate-700 h-2 rounded-full mt-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: '10%' }}></div>
+              <div className="bg-green-500 h-2 rounded-full" style={{ width: `${Math.round((complianceOrScheduleRules / safeTotalForPercent) * 100)}%` }}></div>
             </div>
           </div>
+        </div>
+
+        <div className="mt-4 text-xs text-slate-400">
+          {treasury.exists ? `Treasury PDA: ${treasury.pda?.toBase58()}` : 'Initialize your treasury to start tracking real on-chain activity.'}
         </div>
       </div>
 
@@ -203,22 +233,21 @@ export default function Home() {
       {/* Recent Activity */}
       <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700">
         <h2 className="text-white text-xl font-semibold mb-4">Recent Activity</h2>
-        <div className="space-y-3">
-          {[
-            { action: 'Rule #4 executed', time: '2 hours ago', status: 'success' },
-            { action: 'KYT check completed', time: '5 hours ago', status: 'success' },
-            { action: 'Rule #3 executed', time: '1 day ago', status: 'success' },
-            { action: 'Rule #1 executed', time: '2 days ago', status: 'success' },
-          ].map((activity, i) => (
-            <div key={i} className="flex items-center justify-between py-3 border-b border-slate-700 last:border-0">
-              <div className="flex items-center space-x-3">
-                <div className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-success' : 'bg-warning'}`}></div>
-                <span className="text-slate-200">{activity.action}</span>
+        {recentActivity.length === 0 ? (
+          <p className="text-slate-400 text-sm">No on-chain executions yet. Run a rule to see activity here.</p>
+        ) : (
+          <div className="space-y-3">
+            {recentActivity.map((activity, i) => (
+              <div key={i} className="flex items-center justify-between py-3 border-b border-slate-700 last:border-0">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-success' : 'bg-warning'}`}></div>
+                  <span className="text-slate-200">{activity.action}</span>
+                </div>
+                <span className="text-slate-400 text-sm">{activity.time}</span>
               </div>
-              <span className="text-slate-400 text-sm">{activity.time}</span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Loading Overlay */}
