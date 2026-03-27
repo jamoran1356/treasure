@@ -2,14 +2,14 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { AnchorProvider, Program, Idl, BN } from '@coral-xyz/anchor';
 import { WalletContextState } from '@solana/wallet-adapter-react';
 
-export const PROGRAM_ID = new PublicKey('58BCSjrmyjS2RDiEtSuq6deEhwefP3aa2AhvQ8wNHDEN');
+export const PROGRAM_ID = new PublicKey('7Xbv2NquyJF6tmgoRweogf1LbXmnXpqD5hdwvCdpbeu8');
 
 // IDL in Anchor v2 format (anchor 0.30+): writable/signer instead of isMut/isSigner
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const IDL: any = {
   version: '0.1.0',
   name: 'treasury',
-  address: '58BCSjrmyjS2RDiEtSuq6deEhwefP3aa2AhvQ8wNHDEN',
+  address: '7Xbv2NquyJF6tmgoRweogf1LbXmnXpqD5hdwvCdpbeu8',
   metadata: { name: 'treasury', version: '0.1.0', spec: '0.1.0' },
   instructions: [
     {

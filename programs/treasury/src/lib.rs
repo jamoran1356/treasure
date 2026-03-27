@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer};
 
-declare_id!("58BCSjrmyjS2RDiEtSuq6deEhwefP3aa2AhvQ8wNHDEN");
+declare_id!("7Xbv2NquyJF6tmgoRweogf1LbXmnXpqD5hdwvCdpbeu8");
 
 #[program]
 pub mod treasury {
