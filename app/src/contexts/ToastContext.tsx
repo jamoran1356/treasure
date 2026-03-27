@@ -20,9 +20,6 @@ let nextId = 0;
 
 export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const explorerCluster = process.env.NEXT_PUBLIC_SOLANA_CLUSTER === 'mainnet-beta'
-    ? 'mainnet-beta'
-    : 'devnet';
 
   const dismiss = useCallback((id: number) => {
     setToasts(prev => prev.filter(t => t.id !== id));
@@ -73,7 +70,7 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
               )}
               {toast.txSig && (
                 <a
-                  href={`https://explorer.solana.com/tx/${toast.txSig}?cluster=${explorerCluster}`}
+                  href={`https://explorer.solana.com/tx/${toast.txSig}?cluster=devnet`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-blue-400 hover:text-blue-300 underline mt-1 inline-block break-all"
