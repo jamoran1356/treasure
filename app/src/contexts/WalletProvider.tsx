@@ -7,10 +7,16 @@ import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
 import { clusterApiUrl } from '@solana/web3.js';
 
 export const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  // Use devnet for MVP
-  const network = WalletAdapterNetwork.Devnet;
-  
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+  const cluster = process.env.NEXT_PUBLIC_SOLANA_CLUSTER === 'mainnet-beta'
+    ? WalletAdapterNetwork.Mainnet
+    : WalletAdapterNetwork.Devnet;
+
+  const endpoint = useMemo(() => {
+    if (process.env.NEXT_PUBLIC_RPC_ENDPOINT) {
+      return process.env.NEXT_PUBLIC_RPC_ENDPOINT;
+    }
+    return clusterApiUrl(cluster);
+  }, [cluster]);
   
   const wallets = useMemo(
     () => [

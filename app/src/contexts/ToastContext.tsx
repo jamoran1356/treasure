@@ -20,6 +20,9 @@ let nextId = 0;
 
 export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const explorerCluster = process.env.NEXT_PUBLIC_SOLANA_CLUSTER === 'mainnet-beta'
+    ? 'mainnet-beta'
+    : 'devnet';
 
   const dismiss = useCallback((id: number) => {
     setToasts(prev => prev.filter(t => t.id !== id));
@@ -28,7 +31,9 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const showToast = useCallback((type: ToastType, title: string, message?: string, txSig?: string) => {
     const id = ++nextId;
     setToasts(prev => [...prev, { id, type, title, message, txSig }]);
-    setTimeout(() => dismiss(id), type === 'error' ? 8000 : 5000);
+    if (type !== 'error') {
+      setTimeout(() => dismiss(id), 5000);
+    }
   }, [dismiss]);
 
   const icons: Record<ToastType, string> = {
@@ -68,7 +73,7 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
               )}
               {toast.txSig && (
                 <a
-                  href={`https://explorer.solana.com/tx/${toast.txSig}?cluster=devnet`}
+                  href={`https://explorer.solana.com/tx/${toast.txSig}?cluster=${explorerCluster}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-blue-400 hover:text-blue-300 underline mt-1 inline-block break-all"
