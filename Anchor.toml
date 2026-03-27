@@ -1,0 +1,21 @@
+[toolchain]
+
+[workspace]
+members = ["programs/treasury"]
+
+[features]
+seeds = false
+skip-lint = false
+
+[programs.devnet]
+treasury = "58BCSjrmyjS2RDiEtSuq6deEhwefP3aa2AhvQ8wNHDEN"
+
+[registry]
+url = "https://api.github.com/repos/coral-xyz/anchor/releases/download/v0.29.0/anchor.toml"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "anchor test"

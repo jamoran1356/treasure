@@ -1,0 +1,10 @@
+\\?\C:\wamp\www\proyectos\sol hackathon treasure\programs\treasury\target\sbpf-solana-solana\release\deps\thiserror-3ce3c8e4ed944d9f.d: C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\lib.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\aserror.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\display.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\provide.rs
+
+\\?\C:\wamp\www\proyectos\sol hackathon treasure\programs\treasury\target\sbpf-solana-solana\release\deps\libthiserror-3ce3c8e4ed944d9f.rlib: C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\lib.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\aserror.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\display.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\provide.rs
+
+\\?\C:\wamp\www\proyectos\sol hackathon treasure\programs\treasury\target\sbpf-solana-solana\release\deps\libthiserror-3ce3c8e4ed944d9f.rmeta: C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\lib.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\aserror.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\display.rs C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\provide.rs
+
+C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\lib.rs:
+C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\aserror.rs:
+C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\display.rs:
+C:\Users\jesus\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\thiserror-1.0.69\src\provide.rs:
