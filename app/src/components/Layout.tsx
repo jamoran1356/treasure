@@ -53,7 +53,7 @@ export const Layout: FC<LayoutProps> = ({ children }) => {
       <footer className="border-t border-slate-700 bg-slate-900/50 mt-auto">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center text-slate-400 text-sm">
-            <p>Built for StableHacks 2026 • Powered by Solana</p>
+            <p>Built for StableHacks 2026 • Powered by Solana • Created by Jesús Moran (<a href="https://www.github.com/jamoran1356" targe="_blank">@jamoran1356)</a></p>
             <p className="mt-1">Institutional-grade automated treasury management</p>
           </div>
         </div>
