@@ -302,7 +302,7 @@ export function useTreasury(): UseTreasuryResult {
           try {
             const [rulePDA] = getRulePDA(treasuryPDA, i);
             const rawRule = await withRetry(
-              () => (program.account as any).rule.fetch(rulePDA),
+              () => (program.account as any).rule.fetch(rulePDA) as Promise<RuleAccount['account']>,
               2
             );
             fetchedRules.push(mapOnChainRuleToUiRule({ publicKey: rulePDA, account: rawRule }));
@@ -365,7 +365,7 @@ export function useTreasury(): UseTreasuryResult {
     const [treasuryPDA] = getTreasuryPDA(wallet.publicKey);
     const { SystemProgram } = await import('@solana/web3.js');
 
-    const tx = await withRetry(() => (program.methods as any)
+    const tx = await withRetry<string>(() => (program.methods as any)
       .initializeTreasury(name)
       .accounts({
         treasury: treasuryPDA,
@@ -387,7 +387,7 @@ export function useTreasury(): UseTreasuryResult {
     const [rulePDA] = getRulePDA(treasury.pda, treasury.account.rulesCount);
     const { SystemProgram } = await import('@solana/web3.js');
 
-    const tx = await withRetry(() => (program.methods as any)
+    const tx = await withRetry<string>(() => (program.methods as any)
       .addRule(
         mapRuleTypeToAnchor(params.ruleType),
         new BN(params.conditionValue),
@@ -414,7 +414,7 @@ export function useTreasury(): UseTreasuryResult {
     const [rulePDA] = getRulePDA(treasury.pda, ruleId);
     const { TOKEN_PROGRAM_ID } = await import('@solana/spl-token');
 
-    const tx = await withRetry(() => (program.methods as any)
+    const tx = await withRetry<string>(() => (program.methods as any)
       .executeRule(null) // oracle_price: None for non-price rules
       .accounts({
         treasury: treasury.pda,
@@ -439,7 +439,7 @@ export function useTreasury(): UseTreasuryResult {
 
     const [rulePDA] = getRulePDA(treasury.pda, ruleId);
 
-    const tx = await withRetry(() => (program.methods as any)
+    const tx = await withRetry<string>(() => (program.methods as any)
       .disableRule()
       .accounts({
         treasury: treasury.pda,
