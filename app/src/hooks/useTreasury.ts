@@ -250,7 +250,7 @@ export function useTreasury(): UseTreasuryResult {
     }
   }, [getCacheKey]);
 
-  const refresh = useCallback(async () => {
+  const syncTreasury = useCallback(async (silent = false) => {
     if (!wallet.publicKey) {
       setTreasury(EMPTY_TREASURY);
       setRules([]);
@@ -258,7 +258,9 @@ export function useTreasury(): UseTreasuryResult {
       return;
     }
 
-    setLoading(true);
+    if (!silent) {
+      setLoading(true);
+    }
     setError(null);
 
     try {
@@ -325,38 +327,44 @@ export function useTreasury(): UseTreasuryResult {
       const msg = err instanceof Error ? err.message : 'Unknown error fetching on-chain data';
       setError(`Sync error: ${msg}. Reintentando en segundo plano.`);
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
   }, [wallet, connection, persistState]);
+
+  const refresh = useCallback(async () => {
+    await syncTreasury(false);
+  }, [syncTreasury]);
 
   // Restore last known state and then sync when wallet changes.
   useEffect(() => {
     restoreCachedState();
-    refresh();
-  }, [wallet.publicKey, clusterLabel, restoreCachedState, refresh]);
+    void syncTreasury(true);
+  }, [wallet.publicKey, clusterLabel, restoreCachedState, syncTreasury]);
 
   // Periodic sync to avoid stale data without requiring manual refresh.
   useEffect(() => {
     if (!wallet.publicKey) return;
 
     const intervalId = setInterval(() => {
-      void refresh();
+      void syncTreasury(true);
     }, AUTO_SYNC_INTERVAL_MS);
 
     return () => clearInterval(intervalId);
-  }, [wallet.publicKey, refresh]);
+  }, [wallet.publicKey, syncTreasury]);
 
   // Sync on tab focus to recover quickly after temporary network issues.
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const onFocus = () => {
-      void refresh();
+      void syncTreasury(true);
     };
 
     window.addEventListener('focus', onFocus);
     return () => window.removeEventListener('focus', onFocus);
-  }, [refresh]);
+  }, [syncTreasury]);
 
   const initializeTreasury = useCallback(async (name: string): Promise<string> => {
     const program = getProgram(wallet, connection);
@@ -375,9 +383,9 @@ export function useTreasury(): UseTreasuryResult {
       })
       .rpc());
 
-    await refresh();
+    await syncTreasury(true);
     return tx;
-  }, [wallet, connection, refresh]);
+  }, [wallet, connection, syncTreasury]);
 
   const addRule = useCallback(async (params: AddRuleParams): Promise<string> => {
     const program = getProgram(wallet, connection);
@@ -402,9 +410,9 @@ export function useTreasury(): UseTreasuryResult {
       })
       .rpc());
 
-    await refresh();
+    await syncTreasury(true);
     return tx;
-  }, [wallet, connection, treasury, refresh]);
+  }, [wallet, connection, treasury, syncTreasury]);
 
   const executeRule = useCallback(async (ruleId: number): Promise<string> => {
     const program = getProgram(wallet, connection);
@@ -428,9 +436,9 @@ export function useTreasury(): UseTreasuryResult {
       })
       .rpc());
 
-    await refresh();
+    await syncTreasury(true);
     return tx;
-  }, [wallet, connection, treasury, refresh]);
+  }, [wallet, connection, treasury, syncTreasury]);
 
   const disableRule = useCallback(async (ruleId: number): Promise<string> => {
     const program = getProgram(wallet, connection);
@@ -448,9 +456,9 @@ export function useTreasury(): UseTreasuryResult {
       })
       .rpc());
 
-    await refresh();
+    await syncTreasury(true);
     return tx;
-  }, [wallet, connection, treasury, refresh]);
+  }, [wallet, connection, treasury, syncTreasury]);
 
   return { treasury, rules, loading, error, refresh, initializeTreasury, addRule, executeRule, disableRule };
 }
