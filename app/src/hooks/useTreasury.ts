@@ -303,7 +303,7 @@ export function useTreasury(): UseTreasuryResult {
         for (let i = 0; i < treasuryAccount.rulesCount; i++) {
           try {
             const [rulePDA] = getRulePDA(treasuryPDA, i);
-            const rawRule = await withRetry(
+            const rawRule = await withRetry<RuleAccount['account']>(
               () => (program.account as any).rule.fetch(rulePDA) as Promise<RuleAccount['account']>,
               2
             );
